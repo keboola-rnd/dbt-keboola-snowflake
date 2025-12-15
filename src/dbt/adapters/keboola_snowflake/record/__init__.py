@@ -1,0 +1,2 @@
+from dbt.adapters.keboola_snowflake.record.cursor.cursor import SnowflakeRecordReplayCursor
+from dbt.adapters.keboola_snowflake.record.handle import SnowflakeRecordReplayHandle

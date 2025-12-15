@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dbt-keboola-snowflake"
+version = "0.2.5"
+description = "dbt adapter for Snowflake via Keboola Query Service"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Keboola", email = "support@keboola.com" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "dbt-common>=1.10,<2.0",
+    "dbt-adapters>=1.19.0,<2.0",
+    "dbt-core>=1.9.0",
+    "keboola-query-service",
+    "agate>=1.6,<2.0",
+]
+
+[project.entry-points."dbt.adapter"]
+keboolasnowflake = "dbt.adapters.keboolasnowflake"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dbt"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+]

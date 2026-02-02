@@ -47,10 +47,10 @@ my_project:
 
 ## Required Credentials
 
-- `base_url`: Keboola Query Service URL (e.g., `https://query.keboola.com`)
+- `base_url`: Keboola Query Service URL - use `https://query.<stack-suffix>` (e.g., `https://query.keboola.com`, `https://query.europe-west3.gcp.keboola.com`). Note: This is the Query Service URL, not the Keboola Connection URL.
 - `token`: Keboola Storage API token
 - `branch_id`: Keboola branch ID
-- `workspace_id`: Keboola workspace ID
+- `workspace_id`: Keboola workspace physical ID (not the ID displayed in UI - you can find it via Storage API or by inspecting browser network requests in workspace detail)
 - `database`: Snowflake database name
 - `schema`: Snowflake schema name
 

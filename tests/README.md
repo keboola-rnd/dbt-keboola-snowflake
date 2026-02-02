@@ -22,10 +22,10 @@ cp test.env.example test.env
 Edit `test.env` with your actual Keboola connection details:
 
 ```
-KEBOOLA_BASE_URL=https://connection.keboola.com
+KEBOOLA_BASE_URL=https://query.keboola.com
 KEBOOLA_TOKEN=your-keboola-token-here
 KEBOOLA_BRANCH_ID=your-branch-id
-KEBOOLA_WORKSPACE_ID=your-workspace-id
+KEBOOLA_WORKSPACE_ID=your-workspace-physical-id
 KEBOOLA_DATABASE=TEST_DATABASE
 ```
 
@@ -143,10 +143,10 @@ class TestCustomFeature:
 
 The following environment variables are used in tests:
 
-- `KEBOOLA_BASE_URL` - Base URL for Keboola API (required)
+- `KEBOOLA_BASE_URL` - Keboola Query Service URL, e.g., `https://query.keboola.com` or `https://query.europe-west3.gcp.keboola.com` (required). Note: This is the Query Service URL (`query.<stack-suffix>`), not the Keboola Connection URL.
 - `KEBOOLA_TOKEN` - Keboola authentication token (required)
 - `KEBOOLA_BRANCH_ID` - Branch ID for the workspace (required)
-- `KEBOOLA_WORKSPACE_ID` - Workspace ID (required)
+- `KEBOOLA_WORKSPACE_ID` - Workspace physical ID (required). Note: This is not the ID displayed in UI - find it via Storage API or by inspecting browser network requests in workspace detail.
 - `KEBOOLA_DATABASE` - Database name (optional, defaults to TEST_DATABASE)
 
 ## CI/CD Integration

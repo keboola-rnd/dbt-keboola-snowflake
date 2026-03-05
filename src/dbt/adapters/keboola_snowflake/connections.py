@@ -114,6 +114,18 @@ def _convert_value_to_python_type(value: Any, column_type: str) -> Any:
     return value
 
 
+_COMMENT_OR_STRING_RE = re.compile(r"'(?:[^']|'')*'|--[^\n]*")
+
+
+def _strip_line_comments(sql: str) -> str:
+    """Remove SQL line comments (-- ...) while preserving string literals.
+
+    The regex matches string literals first, so '--' inside quotes is never
+    treated as a comment.
+    """
+    return _COMMENT_OR_STRING_RE.sub(lambda m: m.group() if m.group().startswith("'") else "", sql)
+
+
 class KeboolaHandle:
     """Wrapper around Keboola Client that mimics a database connection handle."""
 
@@ -197,6 +209,8 @@ class KeboolaCursor:
                     sql_value = "'" + str(binding).replace("'", "''") + "'"
 
                 sql = sql.replace("?", sql_value, 1)
+
+        sql = _strip_line_comments(sql)
 
         try:
             results = client.execute_query(

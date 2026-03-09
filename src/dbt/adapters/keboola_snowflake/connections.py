@@ -118,8 +118,10 @@ def _strip_line_comments(sql: str) -> str:
     """Remove SQL -- line comments while preserving all quoted contexts.
 
     Handles single-quoted strings ('' escaping), double-quoted identifiers
-    ("" escaping), dollar-quoted strings ($$...$$), and block comments
-    (/* ... */). Only bare -- sequences in normal SQL text are stripped.
+    ("" escaping), dollar-quoted strings ($$...$$, Snowflake simple
+    dollar-quoting only — named dollar-quoting like $tag$...$tag$ is not
+    supported by Snowflake), and block comments (/* ... */). Only bare --
+    sequences in normal SQL text are stripped.
     """
     out: list[str] = []
     i = 0
@@ -130,7 +132,7 @@ def _strip_line_comments(sql: str) -> str:
 
         # -- line comment: strip to end of line
         if ch == "-" and i + 1 < n and sql[i + 1] == "-":
-            while i < n and sql[i] != "\n":
+            while i < n and sql[i] != "\n" and sql[i] != "\r":
                 i += 1
             continue
 

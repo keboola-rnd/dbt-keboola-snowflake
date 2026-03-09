@@ -31,6 +31,20 @@ from dbt.adapters.keboola_snowflake.connections import _strip_line_comments
             "SELECT \"MY--COL\", 'it''s -- ok' /* blk -- cmt */ FROM t -- eol",
             "SELECT \"MY--COL\", 'it''s -- ok' /* blk -- cmt */ FROM t ",
         ),
+        # Block comment spanning multiple lines containing --
+        ("SELECT 1 /* multi\nline\n-- with dash */ FROM t", "SELECT 1 /* multi\nline\n-- with dash */ FROM t"),
+        # Unterminated block comment — copy through unchanged
+        ("SELECT 1 /* unterminated", "SELECT 1 /* unterminated"),
+        # Unterminated single-quoted string — copy through unchanged
+        ("SELECT 'unterminated", "SELECT 'unterminated"),
+        # Trailing line comment with no newline at end
+        ("SELECT 1 -- trailing", "SELECT 1 "),
+        # CRLF line endings — \r\n preserved after stripping comment
+        ("SELECT 1 -- x\r\nFROM t", "SELECT 1 \r\nFROM t"),
+        # Lone CR line endings (old Mac) — \r preserved after stripping comment
+        ("SELECT 1 -- x\rFROM t", "SELECT 1 \rFROM t"),
+        # Empty dollar-quoted string with a trailing comment
+        ("SELECT $$$$ -- c", "SELECT $$$$ "),
     ],
     ids=[
         "basic_strip",
@@ -44,6 +58,13 @@ from dbt.adapters.keboola_snowflake.connections import _strip_line_comments
         "block_comment_preserves",
         "dollar_quoted_preserves",
         "mixed",
+        "multiline_block_comment",
+        "unterminated_block_comment",
+        "unterminated_single_quote",
+        "trailing_line_comment_no_newline",
+        "crlf_line_endings",
+        "lone_cr_line_ending",
+        "empty_dollar_quote",
     ],
 )
 def test_strip_line_comments(sql: str, expected: str) -> None:

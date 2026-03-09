@@ -114,16 +114,86 @@ def _convert_value_to_python_type(value: Any, column_type: str) -> Any:
     return value
 
 
-_COMMENT_OR_STRING_RE = re.compile(r"'(?:[^']|'')*'|--[^\n]*")
-
-
 def _strip_line_comments(sql: str) -> str:
-    """Remove SQL line comments (-- ...) while preserving string literals.
+    """Remove SQL -- line comments while preserving all quoted contexts.
 
-    The regex matches string literals first, so '--' inside quotes is never
-    treated as a comment.
+    Handles single-quoted strings ('' escaping), double-quoted identifiers
+    ("" escaping), dollar-quoted strings ($$...$$), and block comments
+    (/* ... */). Only bare -- sequences in normal SQL text are stripped.
     """
-    return _COMMENT_OR_STRING_RE.sub(lambda m: m.group() if m.group().startswith("'") else "", sql)
+    out: list[str] = []
+    i = 0
+    n = len(sql)
+
+    while i < n:
+        ch = sql[i]
+
+        # -- line comment: strip to end of line
+        if ch == "-" and i + 1 < n and sql[i + 1] == "-":
+            while i < n and sql[i] != "\n":
+                i += 1
+            continue
+
+        # /* block comment: copy through unchanged
+        if ch == "/" and i + 1 < n and sql[i + 1] == "*":
+            out.append("/*")
+            i += 2
+            while i < n:
+                if sql[i] == "*" and i + 1 < n and sql[i + 1] == "/":
+                    out.append("*/")
+                    i += 2
+                    break
+                out.append(sql[i])
+                i += 1
+            continue
+
+        # 'single-quoted' string with '' escaping
+        if ch == "'":
+            out.append("'")
+            i += 1
+            while i < n:
+                c = sql[i]
+                out.append(c)
+                i += 1
+                if c == "'" and i < n and sql[i] == "'":
+                    out.append("'")
+                    i += 1
+                elif c == "'":
+                    break
+            continue
+
+        # "double-quoted" identifier with "" escaping
+        if ch == '"':
+            out.append('"')
+            i += 1
+            while i < n:
+                c = sql[i]
+                out.append(c)
+                i += 1
+                if c == '"' and i < n and sql[i] == '"':
+                    out.append('"')
+                    i += 1
+                elif c == '"':
+                    break
+            continue
+
+        # $$dollar-quoted$$ string
+        if ch == "$" and i + 1 < n and sql[i + 1] == "$":
+            out.append("$$")
+            i += 2
+            while i < n:
+                if sql[i] == "$" and i + 1 < n and sql[i + 1] == "$":
+                    out.append("$$")
+                    i += 2
+                    break
+                out.append(sql[i])
+                i += 1
+            continue
+
+        out.append(ch)
+        i += 1
+
+    return "".join(out)
 
 
 class KeboolaHandle:

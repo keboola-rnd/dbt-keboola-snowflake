@@ -31,6 +31,6 @@
 #}
 {% macro keboola_snowflake__post_snapshot(staging_relation) %}
     {% call statement('post_snapshot') %}
-        drop table if exists {{ staging_relation }}
+        {{ drop_relation_if_exists(staging_relation) }}
     {% endcall %}
 {% endmacro %}

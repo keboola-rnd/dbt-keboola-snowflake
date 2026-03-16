@@ -28,8 +28,20 @@ def test_generate_session_id_is_unique() -> None:
     assert len(set(ids)) == 100
 
 
-def test_generate_session_id_is_time_ordered() -> None:
-    """UUIDv7 timestamp portion (first 12 hex chars) must be non-decreasing."""
+def test_generate_session_id_is_time_ordered(monkeypatch: pytest.MonkeyPatch) -> None:
+    """UUIDv7 timestamp portion (first 12 hex chars) must be non-decreasing under monotonic time."""
+    import dbt.adapters.keboola_snowflake.connections as conn_module
+
+    call_index = [0]
+    base_ms = 1_700_000_000_000
+
+    def fake_time() -> float:
+        t = (base_ms + call_index[0]) / 1000.0
+        call_index[0] += 1
+        return t
+
+    monkeypatch.setattr(conn_module.time, 'time', fake_time)
+
     ids = [_generate_session_id() for _ in range(10)]
     # Extract the 48-bit timestamp: first 8 hex + next 4 hex (before version nibble)
     # UUID format: xxxxxxxx-xxxx-7xxx-... → first two groups = ms timestamp

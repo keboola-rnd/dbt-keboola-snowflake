@@ -1,5 +1,8 @@
 import datetime
+import os
 import re
+import time
+import uuid as _uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Optional, Tuple, Any, List, Iterable, TYPE_CHECKING, Dict
@@ -24,6 +27,15 @@ if TYPE_CHECKING:
 
 
 logger = AdapterLogger("KeboolaSnowflake")
+
+
+def _generate_session_id() -> str:
+    """Generate a UUIDv7 (time-ordered) session ID per RFC 9562."""
+    ms = int(time.time() * 1000) & 0xFFFFFFFFFFFF  # 48-bit ms timestamp
+    rand_a = int.from_bytes(os.urandom(2), 'big') & 0x0FFF   # 12 random bits
+    rand_b = int.from_bytes(os.urandom(8), 'big') & 0x3FFFFFFFFFFFFFFF  # 62 random bits
+    uuid_int = (ms << 80) | (0x7 << 76) | (rand_a << 64) | (0x2 << 62) | rand_b
+    return str(_uuid.UUID(int=uuid_int))
 
 
 ERROR_REDACTION_PATTERNS = {
@@ -214,7 +226,7 @@ class KeboolaHandle:
         self.workspace_id = workspace_id
         self.database = database
         self.schema = schema
-        self._session_id = f"keboola_{branch_id}_{workspace_id}"
+        self._session_id = _generate_session_id()
 
     @property
     def session_id(self) -> str:
@@ -289,6 +301,7 @@ class KeboolaCursor:
                 branch_id=self.handle.branch_id,
                 workspace_id=self.handle.workspace_id,
                 statements=[sql],
+                session_id=self.handle.session_id,
             )
 
             if results and len(results) > 0:

@@ -32,7 +32,7 @@
     {% if keboola_snowflake__is_catalog_linked_database(relation=config.model) %}
         {% do return(dml) %}
     {% else %}
-        {% do return(snowflake_dml_explicit_transaction(dml)) %}
+        {% do return(keboola_snowflake_dml_explicit_transaction(dml)) %}
     {% endif %}
 
 {% endmacro %}
@@ -44,7 +44,7 @@
     {% if keboola_snowflake__is_catalog_linked_database(relation=config.model) %}
         {% do return(dml) %}
     {% else %}
-        {% do return(snowflake_dml_explicit_transaction(dml)) %}
+        {% do return(keboola_snowflake_dml_explicit_transaction(dml)) %}
     {% endif %}
 {% endmacro %}
 
@@ -55,7 +55,7 @@
     {% if keboola_snowflake__is_catalog_linked_database(relation=target) %}
         {% do return(dml) %}
     {% else %}
-        {% do return(snowflake_dml_explicit_transaction(dml)) %}
+        {% do return(keboola_snowflake_dml_explicit_transaction(dml)) %}
     {% endif %}
 {% endmacro %}
 
@@ -66,7 +66,7 @@
     {% if keboola_snowflake__is_catalog_linked_database(config.model) %}
         {% do return(dml) %}
     {% else %}
-        {% do return(snowflake_dml_explicit_transaction(dml)) %}
+        {% do return(keboola_snowflake_dml_explicit_transaction(dml)) %}
     {% endif %}
 {% endmacro %}
 

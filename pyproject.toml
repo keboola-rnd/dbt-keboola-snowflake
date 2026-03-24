@@ -24,7 +24,7 @@ dependencies = [
     "dbt-common>=1.10,<2.0",
     "dbt-adapters>=1.19.0,<2.0",
     "dbt-core>=1.9.0",
-    "keboola-query-service",
+    "keboola-query-service>=0.1.7",
     "agate>=1.6,<2.0",
 ]
 
